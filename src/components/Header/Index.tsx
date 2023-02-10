@@ -6,15 +6,14 @@ export const Header = () => {
             bg='black'
             as='header'
             mx='auto'
-            h='70px'
             align='center'
             justify='center'
             w='100%'
-            px={["5", "20"]}
+            padding={["5", "5"]}
         >
             <Box
                 w='100%'
-                maxW='1400px'
+                maxW='1200px'
             >
                 <Link 
                     href='#'
