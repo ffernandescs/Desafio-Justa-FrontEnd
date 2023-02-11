@@ -248,7 +248,7 @@ export const Form = () => {
                             maxW={['inherit', '300px']}
                             paddingBottom={['5', '10']}
                             isInvalid={!!errors.valDateInitial}>
-                            <FormLabel htmlFor="valDateInitial">Email:</FormLabel>
+                            <FormLabel htmlFor="valDateInitial">Data Inicial:</FormLabel>
                             <Input
                                 id="valDateInitial"
                                 value={valDateInitial}
@@ -271,7 +271,7 @@ export const Form = () => {
                             marginTop='0'
                             paddingBottom={['5', '10']} 
                             isInvalid={!!errors.valDateFinal}>
-                            <FormLabel htmlFor="valDateFinal">Telefone:</FormLabel>
+                            <FormLabel htmlFor="valDateFinal">Data Final:</FormLabel>
                             <Input
                                 id="valDateFinal"
                                 value={valDateFinal}
