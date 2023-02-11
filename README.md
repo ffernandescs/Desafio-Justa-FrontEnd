@@ -1,46 +1,56 @@
-# Getting Started with Create React App
+# 💰 Desafio Justa - FrontEnd
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<p align="center">
+  🚧 Projeto Recriar projeto FlexPag de Historico de Cotação | Concluído 🚀 🚧
+</p>
 
-## Available Scripts
+## 💻 Sobre o Projeto
+<p>
+  A aplicação trata-se de um site que tem a finalidade de consultar o histórico de cotação de moedas BRL de acordo com a data e moeda estrangeira.
+  O desafio consiste em um consumo de uma API onde recebemos as informações como:
+</p>
 
-In the project directory, you can run:
+  - Sigla de moedas
+  - Nome de moedas estrangeiras
+  - Data de consulta
+  - Valor de compra
+  - Valor de venda
+  - Data e hora de cotação
+  - Nome
 
-### `npm start`
+  Com base nestas informações, foi desenvolvido um site em React com TypeScript onde foi criado campos que recebe os seguintes valores:
+  - Moeda
+  - Data de início
+  - Data Final
+  
+  Recebendo esses dados, a aplicação faz uma busca no endpoint e mostra em uma tabela com os seguintes dados:
+  - Valor de compra
+  - Valor de venda
+  - Data e hora de cotação
+  - Nome
+  
+  Foi utilizado o moment.js para formatar o campo de datas para um formato reconhecido pelo endpoint. Para validação de campos, utilizei a função onBlur onde quando o clicado no component e não preenchido nenhuma informação, o mesmo informa que o campo é obrigatorio.
+  <a href="https://files.fm/u/nrcbuy8ye#/view/chrome-capture-2023-1-10.gif"><img src="https://files.fm/thumb_show.php?i=dkmgs8q8k"></a>
+  
+  No campo abaixo, foi criado uma função que filtra os resultados na tabela, com objetivo de obter um dado expecifico.
+  
+  
+  Para enviar requisição e receber resultados, foi ultilizado o o fetch().
+  
+  ## 🎨 View
+<a href="https://files.fm/u/kpn8392my#/view/ww.gif"><img src="https://files.fm/thumb_show.php?i=2c58bnvyv"></a>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 💻 Tecnologias
+As seguintes ferramentas foram usadas na construção do projeto:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- React
+- TypeScript
+- Chakra UI
+- Moment.js
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🌐 Link da Aplicação 
+<a href="https://desafiojusta.netlify.app/" class="navbar-brand" target="_blank">
+      <p>Acessar</p>
+</a>
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
