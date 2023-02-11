@@ -51,7 +51,7 @@ As seguintes ferramentas foram usadas na construção do projeto:
 
 
 ## 🌐 Link da Aplicação 
-<a href="https://desafiojusta.netlify.app/" class="navbar-brand" target="_blank">
+<a href="https://desafio-justa.netlify.app/" class="navbar-brand" target="_blank">
       <p>Acessar</p>
 </a>
 
