@@ -47,6 +47,7 @@ As seguintes ferramentas foram usadas na construção do projeto:
 - TypeScript
 - Chakra UI
 - Moment.js
+- React Icons
 
 
 ## 🌐 Link da Aplicação 

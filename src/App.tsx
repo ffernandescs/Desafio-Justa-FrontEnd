@@ -1,7 +1,8 @@
-import { Header } from "./components/Header/Index"
-import { Flex, Text, Image } from '@chakra-ui/react';
-import { Form } from "./components/Form/Index";
 import { useEffect, useState } from 'react';
+import { Header } from "./components/Header/Index"
+import { Form } from "./components/Form/Index";
+import { Footer } from "./components/Footer";
+import { Flex, Text, Image } from '@chakra-ui/react';
 import logo from './assets/img/logo.gif'
 
 export const App = () => {
@@ -53,6 +54,7 @@ export const App = () => {
       <>
         <Header />
         <Form />
+        <Footer/>
       </>
     )}
     </Flex>

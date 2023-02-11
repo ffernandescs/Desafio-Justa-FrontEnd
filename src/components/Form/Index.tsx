@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef  } from 'react';
+import { useEffect, useState } from 'react';
 import { 
     Flex,
     useToast,
@@ -6,18 +6,27 @@ import {
     FormControl,  
     Select,
     Input,
-    Button, Box, TableContainer, TableCaption, Table, Spinner, Tr, Th, Thead, Tbody, Td, FormLabel
+    Button, 
+    Box, 
+    TableContainer, 
+    TableCaption, 
+    Table, 
+    Spinner, 
+    Tr, 
+    Th, 
+    Thead, 
+    Tbody, 
+    Td, 
+    FormLabel
 
 } from '@chakra-ui/react'
 import moment from 'moment';
-
 
 interface SimbolProps {
     nomeFormatado: string,
     simbolo: string,
     tipoMoeda: string,
 }
-
 
 interface ListPriceProps {
     cotacaoCompra: number;
@@ -31,7 +40,6 @@ interface ListPriceProps {
 
 export const Form = () => { 
     const [listSimbol, setListSimbol] = useState<SimbolProps[]>([])
-
     const [listPrice, setListPrice] = useState<ListPriceProps[]>([])
 
     const [simbolVal, setSimbolVal] = useState('')
@@ -41,6 +49,7 @@ export const Form = () => {
     const [searchCompra, setSearchCompra] = useState('')
     const [searchVenda, setSearchVenda] = useState('')
     const [searchDate, setSearchDate] = useState('')
+    const [searchName, setSearchName] = useState('')
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -65,16 +74,20 @@ export const Form = () => {
         setListPrice(dataPrice.value)
     }
 
+    //*Função com objetivo de transformar numeros em porcentagem
+
     const toPercentage = (numbe: any) => {
         return (numbe * 100).toFixed(2) + '%'
     }
 
-  
+    /*Função para carregamento da API que contem os simbolos,
+    a mesma tem objetivo de mostrar os simbolos no componente Select */
 
     useEffect(() =>  {
         loadApiSimbol()
-
     }, [])
+
+    //* Função parar loding e mensagem bem vindo quando abre o Desafio
 
     function loading() {
         setIsLoading(true);
@@ -82,9 +95,9 @@ export const Form = () => {
             setIsLoading(false);
         }, 300);
     }
-    
-    
 
+    /*Função que cria um alerta quando a data inicial é maior que a data Final */
+    
     const toast = useToast()
     const statuses = 'error'
     const position = 'top'
@@ -101,6 +114,8 @@ export const Form = () => {
         }
     };
 
+    //* Função que tem objetivo de fazer limpeza em todos os campos preenchidos
+
     const handleClearClick = () => {
         loading()
         setEnableSubmit(false)
@@ -111,29 +126,29 @@ export const Form = () => {
         setSearchCompra('')
         setSearchVenda('')
         setSearchDate('')
+        setSearchName('')
     };
 
-    
-  const filterData = listPrice.filter(itemData => {
-    console.log(searchCompra)
+    //* Função para fltrar os objetos exibidos na tabela ao digitar valor nos inputs
 
-    return (
-        
-        (searchCompra === '' || itemData.cotacaoCompra === parseFloat(searchCompra)) &&
-        (searchVenda === '' || itemData.cotacaoVenda === parseFloat(searchVenda)) &&
-        itemData.dataHoraCotacao.toLowerCase().includes(searchDate.toLowerCase())
-        
-    )
+    const filterData = listPrice.filter(itemData => {
+        return (
+            (searchCompra === '' || itemData.cotacaoCompra === parseFloat(searchCompra)) &&
+            (searchVenda === '' || itemData.cotacaoVenda === parseFloat(searchVenda)) &&
+            itemData.dataHoraCotacao.toLowerCase().includes(searchDate.toLowerCase())
+        )
+    })
 
-  })
+    //* Função que cria maskara nos inputs
 
-  function stringMask(value: string) {
-    console.log(value)
-    let maskeValue = value.replace(/\D/g, '')
-    maskeValue = maskeValue.replace(/^(\d{1})(\d)/, "$1.$2")
-        return maskeValue
-}
+    function stringMask(value: string) {
+        let maskeValue = value.replace(/\D/g, '')
+        maskeValue = maskeValue.replace(/^(\d{1})(\d)/, "$1.$2")
+            return maskeValue
+    }    
 
+    /* Função que ao Clicar no botaõ consultar dados, exibe as infomações de consulta
+    na tabela*/
 
     const handleHistoryPrice = () => {
         if (valDateInitial > valDateFinal) {
@@ -145,14 +160,16 @@ export const Form = () => {
             setShowPercentage(false);
         } 
     }
+
+    /*Função que ao clicar no botão transforma os campos de compra e venda em porcentagem */
     
     const handleConvertPrice = () => {
         loading()
         loadPrice()
         setShowPercentage(true);
     } 
-    
-    
+
+    /*Funcao que cria validacao de campos obrigatorio */
     
     const handleBlur = (field: string, value: string) => {
         if (!value) {
@@ -166,12 +183,7 @@ export const Form = () => {
         }
     };
 
-   
-  
-
-    
     return (
-
         <>
         <Flex
             direction='column'
@@ -274,7 +286,6 @@ export const Form = () => {
                             </Box>
                         </FormControl>
                     </Box>
-                    
                     <Box
                         display='flex'
                         justifyContent={['center', 'space-between']}
@@ -411,6 +422,8 @@ export const Form = () => {
                                 id="valDateFinal"
                                 size="md"
                                 type="text"
+                                value={searchName}
+                                onChange={(e) => setSearchName(e.target.value)}
                                 borderColor='gray.500'
                             />
                         </FormControl>
@@ -420,10 +433,10 @@ export const Form = () => {
             <TableContainer 
                 w='100%'
                 h={['inherit', '70vh']}
+                minH={['300px', 'inherit']}
                 overflowY='auto'
                 borderRadius='10px'
                 border='1px solid #DCDCDC'
-                
             >
                 <Table 
                     variant='striped' 
@@ -458,12 +471,10 @@ export const Form = () => {
                     <Tbody
                     overflow='hidden'
                     >
-                    
                         {filterData.map(item => {
                             return (
                                 <Tr
                                 height='100xp'
-
                                 >
                                     <Td
                                     >{showPercentage ? toPercentage(item.cotacaoCompra) : item.cotacaoCompra}</Td>
