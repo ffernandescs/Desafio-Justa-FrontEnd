@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef  } from 'react';
 import { 
     Flex,
     useToast,
@@ -6,7 +6,7 @@ import {
     FormControl,  
     Select,
     Input,
-    Button, Box, TableContainer, Table, Spinner, Tr, Th, Thead, Tbody, Td, FormLabel
+    Button, Box, TableContainer, TableCaption, Table, Spinner, Tr, Th, Thead, Tbody, Td, FormLabel
 
 } from '@chakra-ui/react'
 import moment from 'moment';
@@ -33,17 +33,20 @@ export const Form = () => {
     const [listSimbol, setListSimbol] = useState<SimbolProps[]>([])
 
     const [listPrice, setListPrice] = useState<ListPriceProps[]>([])
+
     const [simbolVal, setSimbolVal] = useState('')
-
     const [valDateInitial, setValDateInitial] = useState('')
-
     const [valDateFinal, setValDateFinal] = useState('')
+
+    const [searchCompra, setSearchCompra] = useState('')
+    const [searchVenda, setSearchVenda] = useState('')
+    const [searchDate, setSearchDate] = useState('')
+
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [showPercentage, setShowPercentage] = useState(false);
 
     const [enableSubmit, setEnableSubmit] = useState<boolean>(false);
-
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -57,7 +60,6 @@ export const Form = () => {
         
         const dateFormaInitial = moment(valDateInitial).format('MM-DD-YYYY')
         const dateFormaFinal = moment(valDateFinal).format('MM-DD-YYYY')
-
         const responsePrice = await fetch(`https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda='${simbolVal}'&@dataInicial='${dateFormaInitial}'&@dataFinalCotacao='${dateFormaFinal}'&$top=100&$format=json`)
         const dataPrice = await responsePrice.json()
         setListPrice(dataPrice.value)
@@ -65,44 +67,30 @@ export const Form = () => {
 
     const toPercentage = (numbe: any) => {
         return (numbe * 100).toFixed(2) + '%'
-
     }
+
+  
 
     useEffect(() =>  {
         loadApiSimbol()
+
     }, [])
 
     function loading() {
         setIsLoading(true);
-
         setTimeout(() => {
             setIsLoading(false);
         }, 300);
     }
     
-    const handleHistoryPrice = () => {
-        if (valDateInitial > valDateFinal) {
-            setEnableSubmit(false)
-        } else if (simbolVal && valDateInitial && valDateFinal) {
-            setEnableSubmit(true);
-            loading()
-            loadPrice()
-            setShowPercentage(false);
-            console.log(listPrice)
-        } 
-        
-    }
+    
 
     const toast = useToast()
     const statuses = 'error'
     const position = 'top'
-    
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-       
-        
         if (new Date(valDateInitial) > new Date(valDateFinal)) {
             toast({
                 title: 'Data inicial não pode ser maior que Data final!',
@@ -112,37 +100,79 @@ export const Form = () => {
             })
         }
     };
-    
-    const handleBlur = () => {
-        if (!simbolVal) {
-          setErrors((prevState) => ({ ...prevState, simbolVal: '*Campo obrigatorio!' }));
-        }
-        if (!valDateInitial) {
-          setErrors((prevState) => ({ ...prevState, valDateInitial: '*Campo obrigatorio!' }));
-        }
-        if (!valDateFinal) {
-          setErrors((prevState) => ({ ...prevState, valDateFinal: '*Campo obrigatorio!' }));
-        }
-      };
 
-    const handleConvertPrice = () => {
-      
-        loading()
-        loadPrice()
-        setShowPercentage(true);
-        console.log(listPrice)
-    }
-    
     const handleClearClick = () => {
+        loading()
         setEnableSubmit(false)
         setListPrice([]);
         setSimbolVal('');
         setValDateInitial('');
         setValDateFinal('');
-      };
+        setSearchCompra('')
+        setSearchVenda('')
+        setSearchDate('')
+    };
+
+    
+  const filterData = listPrice.filter(itemData => {
+    console.log(searchCompra)
 
     return (
+        
+        (searchCompra === '' || itemData.cotacaoCompra === parseFloat(searchCompra)) &&
+        (searchVenda === '' || itemData.cotacaoVenda === parseFloat(searchVenda)) &&
+        itemData.dataHoraCotacao.toLowerCase().includes(searchDate.toLowerCase())
+        
+    )
 
+  })
+
+  function stringMask(value: string) {
+    console.log(value)
+    let maskeValue = value.replace(/\D/g, '')
+    maskeValue = maskeValue.replace(/^(\d{1})(\d)/, "$1.$2")
+        return maskeValue
+}
+
+
+    const handleHistoryPrice = () => {
+        if (valDateInitial > valDateFinal) {
+            setEnableSubmit(false)
+        } else if (simbolVal && valDateInitial && valDateFinal) {
+            setEnableSubmit(true);
+            loading()
+            loadPrice()
+            setShowPercentage(false);
+        } 
+    }
+    
+    const handleConvertPrice = () => {
+        loading()
+        loadPrice()
+        setShowPercentage(true);
+    } 
+    
+    
+    
+    const handleBlur = (field: string, value: string) => {
+        if (!value) {
+        setErrors((prevState) => ({
+            ...prevState,
+            [field]: '*Campo é obrigatório',
+        }));
+        } else {
+            setErrors((prevState) => ({
+            }));
+        }
+    };
+
+   
+  
+
+    
+    return (
+
+        <>
         <Flex
             direction='column'
             alignItems='center'
@@ -167,29 +197,27 @@ export const Form = () => {
                 <Flex
                     direction='column'
                     justify='space-between'
-                    
                 >
                     <Box
                         display='flex'
                         alignItems='center'
                         justifyContent={['center', 'space-between']}
                         flexWrap={['wrap', 'inherit']}
-
-                        
+                        mb='5'
                     >
-                        <FormControl 
+                        <FormControl
                             w={['100%', '300px']}
+                            h='120px'
                             maxW={['inherit', '300px']}
-                            paddingBottom={['5', '10']}
+                            paddingBottom={['5', '10']} 
                             isInvalid={!!errors.simbolVal}>
-                            <FormLabel htmlFor="simbolVal">Moeda::</FormLabel>
+                            <FormLabel htmlFor="simbolVal">Moeda:</FormLabel>
                             <Select 
                                 id="simbolVal"
-                                placeholder=''                         
-                                onChange={(e) => setSimbolVal(e.target.value)}
-                                onBlur={handleBlur}
                                 value={simbolVal}
-                                borderColor={errors.simbolVal ? 'red.500' : 'gray.200'}
+                                onChange={(e) => setSimbolVal(e.target.value)}
+                                onBlur={() => handleBlur('simbolVal', simbolVal)}
+                                borderColor={errors.simbolVal ? 'red.500' : 'gray.500'}
                             >
                                 <option ></option>
                                 {listSimbol.map(item => {
@@ -204,57 +232,87 @@ export const Form = () => {
                         </FormControl>
                         <FormControl 
                             w={['100%', '300px']}
+                            h='120px'
                             maxW={['inherit', '300px']}
-                            paddingBottom='10'
+                            paddingBottom={['5', '10']}
                             isInvalid={!!errors.valDateInitial}>
-                            <FormLabel htmlFor="valDateInitial">Data inicial:</FormLabel>
+                            <FormLabel htmlFor="valDateInitial">Email:</FormLabel>
                             <Input
-                                id='valDateInitial'
-                                placeholder="Selecione a Data Inicial"
+                                id="valDateInitial"
+                                value={valDateInitial}
                                 size="md"
                                 type="date"
-                                value={valDateInitial}
-                                onChange={(e) => setValDateInitial(e.target.value)}
-                                borderColor={errors.valDateInitial ? 'red.500' : 'gray.200'}
-                                onBlur={handleBlur}
+                                onChange={(event) => setValDateInitial(event.target.value)}
+                                onBlur={() => handleBlur('valDateInitial', valDateInitial)}
+                                borderColor={errors.valDateInitial ? 'red.500' : 'gray.500'}
                             />
                             <Box color="red.500" mt={2}>
                                 {errors.valDateInitial}
                             </Box>
                         </FormControl>
+                
                         <FormControl 
                             w={['100%', '300px']}
+                            h='120px'
                             maxW={['inherit', '300px']}
-                            paddingBottom='10'
+                            margin='0' 
+                            marginTop='0'
+                            paddingBottom={['5', '10']} 
                             isInvalid={!!errors.valDateFinal}>
-                            <FormLabel htmlFor="valDateFinal">Data Final:</FormLabel>
+                            <FormLabel htmlFor="valDateFinal">Telefone:</FormLabel>
                             <Input
-                                id='valDateFinal'
-                                placeholder="Selecione a Data Final"
+                                id="valDateFinal"
+                                value={valDateFinal}
                                 size="md"
                                 type="date"
-                                value={valDateFinal}
-                                onChange={(e) => setValDateFinal(e.target.value)}
-                                borderColor={errors.valDateFinal ? 'red.500' : 'gray.200'}
-                                onBlur={handleBlur}
-
+                                onChange={(event) => setValDateFinal(event.target.value)}
+                                onBlur={() => handleBlur('valDateFinal', valDateFinal)}
+                                borderColor={errors.valDateFinal ? 'red.500' : 'gray.500'}
                             />
                             <Box color="red.500" mt={2}>
                                 {errors.valDateFinal}
                             </Box>
                         </FormControl>
                     </Box>
+                    
                     <Box
                         display='flex'
-                        justifyContent={['center', 'flex-start']}
+                        justifyContent={['center', 'space-between']}
                         flexWrap={['wrap', 'inherit']}
-                        
+                        position='relative'
                     >
+                    {isLoading && (
+                    <Flex
+                        w='100%'
+                        h='100%'
+                        bg='transparent'
+                        pos='absolute'
+                        top='0'
+                        left='0'
+                        right='0'
+                        bottom='0'
+                        margin='auto'
+                        align='center'
+                        justify='center'
+                        zIndex='5'
+                        background='whiteAlpha.700'
+                    >
+                        <Spinner
+                        
+                        thickness=' 4px'
+                        speed='0.85s'
+                        emptyColor='gray.500'
+                        color='blue.800'
+                        size='xl'
+
+                        />
+                    </Flex>
+                    )}
+                    
                         <Button
                             w={['100%', '300px']}
                             maxW={['inherit', '300px']}
                             marginBottom={['5', '5']}
-                            marginRight={['0', '5']}
                             colorScheme='red'
                             onClick={handleClearClick}
                         >Limpar</Button>
@@ -262,87 +320,163 @@ export const Form = () => {
                             w={['100%', '300px']}
                             maxW={['inherit', '300px']}
                             marginBottom={['5', '5']}
-                            marginRight={['0', '5']}
                             as='button'
                             type='submit'
                             onClick={handleHistoryPrice}
-                            colorScheme='blue'
+                            colorScheme='facebook'
                             isDisabled={!simbolVal || !valDateInitial || !valDateFinal}
                             >Consultar Cotação
-                            
                         </Button>
                         <Button
                             w={['100%', '300px']}
                             maxW={['inherit', '300px']}
                             marginBottom={['5', '5']}
-                            marginRight={['0', '5']}
                             as='button'
                             type='submit'
                             onClick={handleConvertPrice}
-                            colorScheme='blue'
+                            colorScheme='green'
                             isDisabled={!enableSubmit}
                         >Tranformar Cotação em %
                         </Button>
+                        
                     </Box>
-                    
+                    <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent={['center', 'space-between']}
+                        flexWrap={['wrap', 'inherit']}
+                        mt='5'
+                    >
+                        <FormControl 
+                            w={['100%', '250px']}
+                            maxW={['inherit', '300px']}
+                            paddingBottom={['5', '10']} 
+                        >
+                            <FormLabel 
+                                textAlign='center'
+                                htmlFor="valDateFinal">Cotação de compra:
+                            </FormLabel>
+                            <Input
+                                size="md"
+                                value={stringMask(searchCompra)}
+                                onChange={(e) => setSearchCompra(e.target.value)}
+                                borderColor='gray.500'
+                            />
+                        </FormControl>
+                        <FormControl 
+                            w={['100%', '250px']}
+                            maxW={['inherit', '300px']}
+                            paddingBottom={['5', '10']}
+                        >
+                            <FormLabel 
+                                textAlign='center'
+                                htmlFor="valDateInitial">Cotação de venda:
+                            </FormLabel>
+                            <Input
+                                size="md"
+                                value={stringMask(searchVenda)}
+                                onChange={(e) => setSearchVenda(e.target.value)}
+                                borderColor='gray.500'
+                            />
+                        </FormControl>
+                
+                        <FormControl 
+                            w={['100%', '250px']}
+                            maxW={['inherit', '300px']}
+                            paddingBottom={['5', '10']} 
+                        >
+                            <FormLabel 
+                                textAlign='center'
+                                htmlFor="valDateFinal">Data e hora da cotação:
+                            </FormLabel>
+                            <Input
+                                id="valDateFinal"
+                                size="md"
+                                type="date"
+                                value={searchDate}
+                                onChange={(e) => setSearchDate(e.target.value)}
+                                borderColor='gray.500'
+                            />
+                        </FormControl>
+                        <FormControl 
+                            w={['100%', '250px']}
+                            maxW={['inherit', '300px']}
+                            paddingBottom={['5', '10']} 
+                        >
+                            <FormLabel 
+                                textAlign='center'
+                                htmlFor="valDateFinal">Nome:
+                            </FormLabel>
+                            <Input
+                                id="valDateFinal"
+                                size="md"
+                                type="text"
+                                borderColor='gray.500'
+                            />
+                        </FormControl>
+                    </Box>
                 </Flex>
-
             </form>
             <TableContainer 
                 w='100%'
+                h={['inherit', '70vh']}
+                overflowY='auto'
+                borderRadius='10px'
+                border='1px solid #DCDCDC'
                 
             >
-"               <Table variant='striped' colorScheme='teal'>
+                <Table 
+                    variant='striped' 
+                    colorScheme='gray'
+                    position='relative'
+                >
+                    <TableCaption
+                        textAlign='start'
+                    >
+                        <Text>Total de Resultados: {listPrice.length}</Text>
+                    </TableCaption>
                     <Thead>
-                        <Tr>
-                            <Th>Cotação de compra:</Th>
-                            <Th>Cotação de Venda:</Th>
-                            <Th>Data e hora da cotação:</Th>
-                            <Th>Nome:</Th>
+                        <Tr
+                            position='sticky'
+                            top='0'
+                            bg='blue.600'
+                        >
+                            <Th
+                                color='white'
+                            >Cotação de compra:</Th>
+                            <Th
+                                color='white'
+                            >Cotação de Venda:</Th>
+                            <Th
+                                color='white'
+                            >Data e hora da cotação:</Th>
+                            <Th
+                                color='white'
+                            >Nome:</Th>
                         </Tr>
                     </Thead>
                     <Tbody
+                    overflow='hidden'
                     >
-                    {isLoading ? (
-                        <Flex
-                            w='100%'
-                            h='100%'
-                            position='relative'
-                            left='80%'
-                            top='20px'
-                           
-                        >
-                            <Spinner
-                            
-                            thickness=' 4px'
-                            speed='0.65s'
-                            emptyColor='gray.200'
-                            color='blue.500'
-                            size='xl'
-                            />
-                        </Flex>
-                    ) : (
-                    <>
-                        {listPrice.map(item => {
-                            const dateFormat = moment(item.dataHoraCotacao).format('DD-MM-YYYY HH:mm:ss')
+                    
+                        {filterData.map(item => {
                             return (
-                                <Tr>
+                                <Tr
+                                height='100xp'
+
+                                >
                                     <Td
-                                    >{showPercentage ? toPercentage(item.cotacaoCompra) : item.cotacaoVenda}</Td>
+                                    >{showPercentage ? toPercentage(item.cotacaoCompra) : item.cotacaoCompra}</Td>
                                     <Td>{showPercentage ? toPercentage(item.cotacaoVenda) : item.cotacaoVenda}</Td>
-                                    <Td isNumeric
-                                    >{dateFormat}</Td>
-                                    <Td isNumeric>Justa</Td>
+                                    <Td>{item.dataHoraCotacao}</Td>
+                                    <Td>Justa</Td>
                                 </Tr>
                             )
                         })}
-                        
-                    </>
-                    )}
                     </Tbody>
                 </Table>
             </TableContainer>"
-         
         </Flex>
-    )
-}
+      </>
+    );
+  };
